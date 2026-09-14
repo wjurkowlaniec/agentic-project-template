@@ -120,6 +120,21 @@ When you want to separate architecture/planning from raw execution (or hand a co
 
 ## Getting Started
 
+### AI Prompt Initialization (Zero-Setup)
+
+You can bootstrap any new project simply by passing this prompt to your AI coding agent:
+
+```text
+Start the project with template. Read https://raw.githubusercontent.com/wjurkowlaniec/agentic-project-template/main/SKILL.md and initialize the project based on what you know.
+
+Target: /path/to/my-new-project
+Name: <Project Name>
+Purpose: <1-2 sentences explaining what the project does>
+Stack: <e.g. Python CLI, Rust crate, Go service>
+```
+
+---
+
 ### Using the Initialization Script
 
 Run `scripts/init-project.sh` to scaffold a clean copy of the template into a target directory:
@@ -132,6 +147,8 @@ The script will:
 - Copy the entire structure (excluding `.git`).
 - Replace `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, and `{{DATE}}` across markdown files.
 - Initialize a fresh git repository if one does not already exist.
+
+---
 
 ### Manual Setup
 
