@@ -29,17 +29,26 @@ This guide instructs an AI agent how to set up agentic living documentation for 
 
 ### Step A1 — Extract Project Information
 
-Identify from the user's prompt. Ask for anything missing — do **not** infer silently.
+**Required before proceeding** — ask the user only for these if missing:
 
 | Field | Notes |
 |---|---|
-| **Target Directory** | Destination path (e.g. `/tmp/my-app`) |
-| **Project Name** | Human-readable name (used in headers) |
-| **Description** | 1–2 sentence summary of what the system does |
-| **Stack** | Language + runtime (e.g. `Python 3.12`, `Rust 1.80`) |
-| **Project Type** | CLI Tool / Library / Service / Pipeline / Other |
-| **Entrypoint** | Main source file or executable (e.g. `src/main.py`) |
-| **Canonical Commands** | Check/Lint, Test, Build, Run |
+| **Target Directory** | Destination path (e.g. `~/dev/my-app`) |
+| **Project Name** | Human-readable name (used in all headers) |
+| **Description** | 1–2 sentences: what the system does |
+
+**Fill as `TBD` if unknown — do not ask, do not block:**
+
+| Field | Default when unknown |
+|---|---|
+| **Stack** | `TBD — define when implementation starts` |
+| **Project Type** | `TBD` |
+| **Entrypoint** | `TBD — define with the first implementation slice` |
+| **Canonical Commands** | `TBD — no command configured yet` (for each of check/test/build/run) |
+
+> These technical details emerge from the first implementation session, not from bootstrapping.
+> Leave them as TBD — the agent will fill them in when the stack is decided.
+
 
 ### Step A2 — Scaffold the Target Repository
 
@@ -64,9 +73,45 @@ Replace **every** occurrence. Do not work from a static list of file names.
 - `docs/ARCHITECTURE.md`, `docs/MODULES.md` — update header/name only. **Leave component/module sections as placeholders — do NOT design architecture now.**
 - All other files — replace all `{{TOKENS}}` with concrete values.
 
+### Step A3.5 — Remove Template-Only Files
+
+The following files are part of the template infrastructure and **must be deleted** from the target project:
+
+```bash
+rm "<TARGET_DIR>/BOOTSTRAP.md"                  # bootstrap instructions, not needed in project
+rm "<TARGET_DIR>/AGENT_SPECIALIZED_TEMPLATE.md" # blank template, only keep if you'll use sub-agents
+rm -rf "<TARGET_DIR>/scripts/"                  # init-project.sh only makes sense in the template repo
+```
+
+Then **replace `README.md`** with a minimal project-specific one:
+
+```bash
+cat > "<TARGET_DIR>/README.md" << 'EOF'
+# <PROJECT_NAME>
+
+<PROJECT_DESCRIPTION>
+
+## Quick Start
+
+```bash
+# Setup
+<setup commands>
+
+# Run
+<CMD_RUN>
+```
+
+## Development
+
+See `AGENT.md` for canonical commands and project conventions.
+EOF
+```
+
+> **Tip**: Keep `README.md` minimal at bootstrap — it can be expanded once the project has real content.
+
 ### ⛔ STOP — New Project Initialization Boundary
 
-After Step A3, initialization is complete. Do not proceed further unless explicitly asked.
+After Step A3.5, initialization is complete. Do not proceed further unless explicitly asked.
 
 **Out of scope for new project bootstrap:**
 - Writing application source code
@@ -121,6 +166,17 @@ git clone --depth 1 https://github.com/wjurkowlaniec/agentic-project-template.gi
 cp /tmp/agentic-template/AGENT.md "<TARGET_DIR>/AGENT.md"
 rm -rf /tmp/agentic-template
 ```
+
+### Step B2.5 — Do NOT copy template-only files
+
+The following files belong to the template infrastructure only. **Never copy them into an existing project:**
+
+| File | Reason |
+|---|---|
+| `BOOTSTRAP.md` | Bootstrap instructions — irrelevant once setup is done |
+| `AGENT_SPECIALIZED_TEMPLATE.md` | Blank template — copy manually only if you need sub-agents |
+| `scripts/init-project.sh` | Creates new projects from the template — not useful inside a project |
+| `README.md` | Template's own README — the existing project already has one; do not overwrite |
 
 ### Step B3 — Tailor the Living Documentation
 
