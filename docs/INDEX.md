@@ -4,13 +4,13 @@ Welcome to the technical documentation for {{PROJECT_NAME}}.
 
 ## System & Architecture
 
-- **[System Architecture](architecture.md)**: High-level design, data flow, trust boundaries, and core invariants.
-- **[Modules & Subsystems](modules.md)**: Subsystem breakdown, responsibilities, public interfaces, and directory layout.
+- **[System Architecture](ARCHITECTURE.md)**: High-level design, data flow, trust boundaries, and core invariants.
+- **[Modules & Subsystems](MODULES.md)**: Subsystem breakdown, responsibilities, public interfaces, and directory layout.
 
 ## Engineering Workflows
 
-- **[Development Workflow](development.md)**: Local setup, iterative dev loop, testing standards, and verification checklists.
-- **[Operations & Release Guide](operations.md)**: Release pipeline, pre-release checklists, operational commands, and rollback procedures.
+- **[Development Workflow](DEVELOPMENT.md)**: Local setup, iterative dev loop, testing standards, and verification checklists.
+- **[Operations & Release Guide](OPERATIONS.md)**: Release pipeline, pre-release checklists, operational commands, and rollback procedures.
 
 ## Session Lifecycle (Living Docs at Repo Root)
 

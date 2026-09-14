@@ -1,6 +1,9 @@
 # AI Agent Guide — {{PROJECT_NAME}}
 
-Keep this file short (<100 lines). It is the entrypoint loaded at the start of AI sessions. Detailed documentation, architecture, and domain knowledge belong in `docs/`.
+Keep this file short (<120 lines). It is the entrypoint loaded at every AI session.
+Detailed documentation, architecture, and domain knowledge belong in `docs/`.
+
+---
 
 ## Project Snapshot
 
@@ -9,37 +12,67 @@ Keep this file short (<100 lines). It is the entrypoint loaded at the start of A
 - **Main Entrypoint**: {{MAIN_ENTRYPOINT}}
 - **Repository Type**: {{PROJECT_TYPE}} <!-- e.g. Library, CLI, Service, Application, Pipeline -->
 
+---
+
+## Core Invariants
+
+These rules are **never** negotiated without explicit user consent in this session:
+
+1. **No unsolicited refactoring** — changes are laser-focused on the requested task only.
+2. **No new dependencies** — never introduce external libraries or tools without explicit approval.
+3. **No secret exposure** — never hardcode, log, or commit credentials, tokens, or API keys.
+4. **No auto-commit** — never run `git commit` without explicit user confirmation.
+5. **No branch switching on dirty tree** — always check `git status` first; stop if tree is dirty.
+6. **No data mutation** — never modify, truncate, or delete files under `data/` without explicit instruction.
+7. **No CHANGELOG reordering** — append only under `[Unreleased]`; never renumber or reformat existing entries.
+8. **Preserve public contracts** — never change public APIs, CLI interfaces, or serialization formats unless requested.
+
+---
+
+## Forbidden Actions
+
+- Modify any file under `data/` (read-only at runtime)
+- Change the version number in `CHANGELOG.md` or reorder its entries
+- Run destructive commands (`rm -rf`, `DROP TABLE`, `truncate`, etc.) without confirmation
+- Commit or push without explicit user instruction
+- Install system-level packages or modify global tooling config
+
+---
+
 ## Session Lifecycle
 
-### 1. Session Start
-1. Read `STATE.md` to identify active task, blockers, and recent context.
-2. If `STATE.md` has no active task in progress, check `TODO-NOW.md` for top priority.
-3. Read the latest entry in `WORK_LOG.md`.
-4. Inspect git status (`git status --short --branch`). Do not change branches if the tree is dirty.
+### Session Start
+1. Read `STATE.md` — identify active task, branch, and blockers.
+2. If no active task, check `TODO-NOW.md` for top priority.
+3. Read the latest entry in `WORK_LOG.md` for recent context.
+4. Run `git status --short --branch`. **Stop if tree is dirty and branch is unexpected.**
 5. Read **only** the code and docs strictly necessary for the immediate task.
 
-### 2. Execution
+### Execution
 - Work in small, coherent slices.
-- Do not guess or assume — inspect existing patterns and interfaces before modifying.
-- Preserve existing public APIs, interfaces, CLI contracts, and behavior unless requested otherwise.
+- Inspect existing patterns before modifying — do not assume.
+- Respect the Core Invariants above at all times.
 
-### 3. Session End (for meaningful changes)
+### Session End (for any meaningful change)
 1. Run the project verification suite (tests, linter, or compiler).
-2. Update `STATE.md` with the current status, blockers, and next immediate action.
-3. Prepend a concise entry to `WORK_LOG.md` (summary of changes and test results).
-4. Update `CHANGELOG.md` under `[Unreleased]` if public-facing behavior changed.
-5. Leave changes staged or cleanly organized. **Do not auto-commit without explicit confirmation.**
+2. Update `STATE.md`: current status, blockers, next immediate action.
+3. Prepend a structured entry to `WORK_LOG.md` using the required format (see WORK_LOG.md header).
+4. Update `CHANGELOG.md` under `[Unreleased]` **only** if public-facing behavior changed.
+5. Leave changes staged. **Do not auto-commit.**
 
-## Core Engineering Rules
+---
 
-- **Zero Unsolicited Refactoring**: Keep changes laser-focused on the requested task. Do not reformat or reorganize unrelated files.
-- **Dependency Guard**: Never introduce new external libraries, tools, or dependencies without explicit user consent.
-- **Respect User State**: Never discard, overwrite, or revert unstaged user changes.
-- **Safety & Blast Radius**: Never hardcode, expose, or commit secrets, tokens, or credentials. Ask for confirmation before executing irreversible or destructive commands.
+## Lessons Learned
+
+*Persistent pitfalls discovered during this project. Add entries here — do NOT rely on re-reading WORK_LOG.*
+
+<!-- FORMAT: - [YYYY-MM-DD] <Pitfall description> → <Mitigation> -->
+
+- *(none yet — add after first non-trivial session)*
+
+---
 
 ## Canonical Commands
-
-Populate these for this repository (or leave empty if not applicable):
 
 ```bash
 # Verification / Static Checks
@@ -55,10 +88,14 @@ Populate these for this repository (or leave empty if not applicable):
 {{CMD_RUN}}
 ```
 
+---
+
 ## Quality & Verification Standard
 
-- A task is not complete until relevant checks/tests pass.
-- If verification cannot be executed in this environment, explicitly document the reason and the command to run manually in `STATE.md` and the final response.
+- A task is **not complete** until relevant checks/tests pass.
+- If verification cannot run in this environment, document the reason and the manual command in `STATE.md` under `blockers`.
+
+---
 
 ## Key Paths
 

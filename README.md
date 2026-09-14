@@ -1,162 +1,177 @@
-# AI-First Project Template
+# Agentic Project Template
 
-A practical, stack-agnostic template for structuring repositories where humans and AI agents write software together.
+A battle-tested, lightweight, stack-agnostic system for shipping software with AI agents — without losing control of your codebase.
 
----
-
-## Why this exists
-
-If you have used AI coding assistants on non-trivial codebases, you have probably run into the same familiar frustrations:
-
-- **Context amnesia**: Every fresh session starts from zero. The agent has no idea what happened an hour ago, what branch you are on, or what broke during the last run.
-- **Context bloat**: An agent reads half the repository into its window, runs out of useful attention, and starts hallucinating interfaces or repeating mistakes.
-- **Unsolicited chaos**: Without explicit guardrails, agents love rewriting working code they were never asked to touch, pulling in unvetted libraries, or wiping out unstaged local changes.
-- **Task drifting**: When presented with a massive backlog, agents easily wander off into low-priority cleanup instead of solving the immediate blocker.
-
-This template fixes those failure modes using a lightweight, file-based protocol. It does not require any external SaaS, special tooling, or proprietary extensions. It is simply a disciplined convention of living Markdown files living directly in your repository.
-
-It works with any LLM, any coding assistant, and any technical stack (CLI tools, libraries, systems, APIs, or data pipelines).
+> **Used across multiple shipped projects.** This workflow emerged from real development sessions, iterated on failures, and refined until agents stopped hallucinating, drifting, and breaking things.
 
 ---
 
-## The System Architecture
+## The Problem
 
-The repository is organized into three distinct layers:
+AI coding assistants are powerful but unreliable at scale. If you've used them on non-trivial projects, you know the failure modes:
+
+- **Context amnesia** — every new session starts from scratch. The agent doesn't know what branch you're on, what broke last time, or what you were in the middle of.
+- **Scope creep** — without explicit boundaries, agents rewrite code they were never asked to touch, pull in unvetted libraries, or redesign working architecture "while they're at it."
+- **Task drift** — given a vague backlog, agents wander into low-priority cleanup instead of fixing the actual blocker.
+- **Silent failures** — agents declare success after a commit without verifying that the code actually runs.
+
+Standard solutions (system prompts, complex tooling, SaaS memory layers) add overhead and still break across sessions.
+
+---
+
+## The Solution
+
+A lightweight, file-based protocol living directly in your repository. No external services. No proprietary extensions. No lock-in.
+
+**It works because files are durable, versionable, and universally readable by any LLM.**
+
+The system gives agents:
+1. **Persistent operational memory** — they always know where they left off
+2. **Explicit scope boundaries** — they know exactly what to touch and what to leave alone
+3. **Objective completion criteria** — a task isn't done until tests pass, not until a commit happens
+4. **Structured session handoffs** — every session leaves a record for the next one
+
+---
+
+## What Gets Shipped
+
+This workflow has been used to ship:
+- CLI tools with complex domain logic
+- Libraries with public API contracts
+- Data pipelines with strict schema invariants
+- Services with operational runbooks
+
+The common thread: agents that stay focused, document their work, and hand off cleanly — session after session.
+
+---
+
+## How It Works
+
+### File Structure
 
 ```text
 .
-├── AGENT.md                       # The primary agent contract (brief, rules, canonical commands)
-├── STATE.md                       # Current operational memory (branch, status, blockers, next step)
-├── WORK_LOG.md                    # Append-only session journal (newest entry on top)
-├── TODO-NOW.md                    # Immediate tactical focus (strictly top 3–5 items)
-├── TODO_SPRINT.md                 # Current iteration scope (bugs, features, tech debt)
+├── AGENT.md                       # Agent entrypoint: rules, commands, invariants
+├── STATE.md                       # Live operational memory: branch, status, blockers, next step
+├── WORK_LOG.md                    # Append-only session journal (structured format, newest on top)
+├── TODO-NOW.md                    # Immediate focus: strictly 3–5 items, worked top-to-bottom
+├── TODO_SPRINT.md                 # Current iteration: bugs, features, tech debt
 ├── CHANGELOG.md                   # Public release notes (Keep a Changelog format)
-├── AGENT_SPECIALIZED_TEMPLATE.md  # Template for domain-specific sub-agents (e.g. audits, migrations)
+├── BOOTSTRAP.md                   # How to set up this template on a new or existing project
+├── AGENT_SPECIALIZED_TEMPLATE.md  # Template for domain-specific sub-agents (audits, migrations)
 ├── docs/
-│   ├── index.md                   # Master documentation index
-│   ├── architecture.md            # System topology, data flow, trust boundaries, invariants
-│   ├── modules.md                 # Subsystems, responsibilities, and module boundaries
-│   ├── development.md             # Setup, local iteration loop, and testing conventions
-│   ├── operations.md              # Build, release, health verification, and rollback procedures
-│   ├── BACKLOG.md                 # Long-term strategic roadmap (P0 through P3)
+│   ├── index.md                   # Documentation index
+│   ├── architecture.md            # System topology, data flow, trust boundaries
+│   ├── modules.md                 # Subsystems, responsibilities, module boundaries
+│   ├── development.md             # Local setup, iteration loop, testing conventions
+│   ├── operations.md              # Build, release, rollback procedures
+│   ├── BACKLOG.md                 # Strategic roadmap (P0–P3)
 │   ├── PROMPTS/
-│   │   ├── README.md              # Guide for delegating work to autonomous subagents
-│   │   └── TEMPLATE__task-prompt.md # Reusable task specification template
+│   │   ├── README.md              # Guide for delegating tasks to autonomous subagents
+│   │   └── TEMPLATE__task-prompt.md
 │   └── templates/
-│       ├── FEATURE-SPEC-TEMPLATE.md # Architectural RFC template for major changes
-│       └── LESSONS-IDEAS-TEMPLATE.md# Research notes, technical discoveries, and idea backlog
+│       ├── FEATURE-SPEC-TEMPLATE.md
+│       └── LESSONS-IDEAS-TEMPLATE.md
 └── scripts/
-    └── init-project.sh            # Setup script to scaffold new projects from this template
+    └── init-project.sh            # Scaffold a new project from this template
 ```
 
 ---
 
-## How It Works in Practice
+### The Session Lifecycle
 
-### 1. The Session Lifecycle
+Defined in `AGENT.md` and followed by every session without exception.
 
-Every AI session follows a strict, repeatable protocol defined in `AGENT.md`:
+**Session Start — 3 reads before touching code:**
+1. `STATE.md` — current branch, active task, blockers
+2. `TODO-NOW.md` — if no active task, pick the top item
+3. `WORK_LOG.md` — what happened last session
 
-#### Session Start
-1. **Read `STATE.md`** first. It takes 2 seconds and immediately brings the agent up to speed on the current branch, work in progress, and known blockers.
-2. If `STATE.md` shows no active task in progress, the agent picks the top item from `TODO-NOW.md`.
-3. **Read the latest entry in `WORK_LOG.md`** to see what changes were made in the preceding session.
-4. **Inspect `git status`**. Never switch branches or discard changes if the worktree is dirty.
-5. **Read only what is needed**. The agent inspects only the specific files relevant to the assigned task.
+**Execution rules:**
+- Work in small, coherent slices
+- Inspect before editing — never assume an interface
+- Never add dependencies without explicit approval
+- Never touch files outside the task scope
 
-#### Execution
-- The agent works in small, coherent slices rather than attempting huge, risky rewrites.
-- Inspect before editing: check existing interfaces and code patterns before proposing changes.
-- Never add third-party dependencies without explicit user confirmation.
-- Never touch unrelated files or perform drive-by refactoring.
-
-#### Session End
-Before ending a session with meaningful changes:
-1. Run automated checks and tests to verify nothing broke.
-2. Update `STATE.md` with the new status, any new blockers, and the exact next step.
-3. Prepend a concise entry to `WORK_LOG.md` recording what was done and the verification outcome.
-4. Update `CHANGELOG.md` under `[Unreleased]` if public behavior changed.
-5. Leave changes staged or cleanly organized for human review. Never auto-commit without explicit user permission.
+**Session End — done means verified:**
+1. Run tests and linter — if they can't run, document why in `STATE.md`
+2. Update `STATE.md` with new status and next action
+3. Prepend a structured `WORK_LOG.md` entry: What / Evidence / Decisions / Open Ends
+4. Update `CHANGELOG.md` only if public behavior changed
+5. Stage changes. Never auto-commit.
 
 ---
 
-### 2. The 3-Tier Task Horizon
+### The Task Horizon System
 
-Agents perform best when their immediate scope is sharply bounded. To prevent context overload, tasks are split across three tiers:
+Agents focus best when their scope is sharply bounded. Three tiers prevent context overload:
 
-| File | Time Horizon | Purpose | Rule |
-| :--- | :--- | :--- | :--- |
-| `TODO-NOW.md` | Next few hours | Immediate tactical focus | **Strictly 3–5 items**. The agent always works from top to bottom. |
-| `TODO_SPRINT.md` | Current milestone/week | Working backlog for the iteration | Grouped into: Critical & Bugs, Features, Performance, Tech Debt. |
-| `docs/BACKLOG.md` | Weeks to months | Strategic product & tech roadmap | Tiered P0–P3 items with explicit acceptance criteria. |
-
-When a task in `TODO-NOW.md` is completed, pull the next priority item from `TODO_SPRINT.md`.
+| File | Horizon | Purpose | Hard rule |
+|:---|:---|:---|:---|
+| `TODO-NOW.md` | Hours | Immediate tactical focus | **Max 5 items.** Top-to-bottom order. |
+| `TODO_SPRINT.md` | Days–week | Working iteration backlog | Bugs → Features → Tech Debt |
+| `docs/BACKLOG.md` | Weeks–months | Strategic roadmap | P0–P3 with acceptance criteria |
 
 ---
 
-### 3. Canonical Commands Contract
+### Core Invariants (non-negotiable)
 
-Different projects use different languages and toolchains. To keep agents from guessing or searching through config files, `AGENT.md` establishes a standard 4-command contract:
+Every project using this template enforces these in `AGENT.md`:
 
-- **Check / Lint**: Static analysis, type-checking, or formatting checks.
-- **Test**: Fast unit test suite (run continuously during work) and full test suite.
-- **Build**: Compilation, packaging, or artifact creation.
-- **Run**: How to run the local binary, service, or entrypoint.
+- No unsolicited refactoring
+- No new dependencies without approval
+- No secrets committed
+- No auto-commit
+- No branch switch on dirty worktree
 
-When initializing a new repository, fill these commands in `AGENT.md`. Any agent starting a session will immediately know how to validate its work.
+These aren't suggestions — they are enforced by the agent contract in `AGENT.md`.
 
 ---
 
-### 4. Delegated Task Mode (`docs/PROMPTS/`)
+### Delegated Task Mode
 
-When you want to separate architecture/planning from raw execution (or hand a concrete task to an automated subagent):
+For complex features or when separating planning from execution:
 
-1. **Planner** fills out a markdown task prompt in `docs/PROMPTS/YYYY-MM-DD__task-name.md` using the template.
-2. The prompt contains exact goal, files to touch, constraints, and an acceptance checklist.
-3. **Executor** implements the task against the checklist and returns the diff.
-4. **Planner or Human** runs verification, checks the diff, and updates `STATE.md` and `WORK_LOG.md`.
+1. **Planner** writes a task prompt in `docs/PROMPTS/YYYY-MM-DD__task-name.md`
+2. Prompt contains: goal, files to touch, constraints, acceptance checklist
+3. **Executor** implements against the checklist
+4. **Planner / Human** verifies, then updates `STATE.md` and `WORK_LOG.md`
 
 ---
 
 ## Getting Started
 
-### AI Prompt Initialization (Zero-Setup)
+### Option 1 — AI Prompt (Zero-Setup, New or Existing Project)
 
-You can bootstrap any new project simply by passing this prompt to your AI coding agent:
+Pass this to your coding agent. It handles both new projects and adoption of existing ones:
 
 ```text
-Start the project with template. Read https://raw.githubusercontent.com/wjurkowlaniec/agentic-project-template/main/SKILL.md and initialize the project based on what you know.
+Read https://raw.githubusercontent.com/wjurkowlaniec/agentic-project-template/main/BOOTSTRAP.md
+and set up the agentic workflow for this project.
 
-Target: /path/to/my-new-project
+Target: /path/to/my-project
 Name: <Project Name>
-Purpose: <1-2 sentences explaining what the project does>
-Stack: <e.g. Python CLI, Rust crate, Go service>
+Purpose: <1-2 sentences>
+Stack: <e.g. Python 3.12, Rust, Go, TypeScript>
 ```
+
+The agent will detect whether the target is a new or existing project and apply the correct mode automatically.
 
 ---
 
-### Using the Initialization Script
-
-Run `scripts/init-project.sh` to scaffold a clean copy of the template into a target directory:
+### Option 2 — Init Script (New Project)
 
 ```bash
 ./scripts/init-project.sh ~/dev/my-new-tool "My Tool" "High-performance CLI utility for log parsing."
 ```
 
-The script will:
-- Copy the entire structure (excluding `.git`).
-- Replace `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, and `{{DATE}}` across markdown files.
-- Initialize a fresh git repository if one does not already exist.
+Copies the template, replaces `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, and `{{DATE}}`, and initializes a clean git repo.
 
 ---
 
-### Manual Setup
+### Option 3 — Manual Setup
 
-If you prefer to copy files manually:
-1. Copy the repository files into your target directory.
-2. Open `AGENT.md` and define:
-   - Your project description, primary language/environment, and main entrypoint.
-   - The 4 canonical commands (`CHECK`, `TEST`, `BUILD`, `RUN`).
-   - Key paths for source code, tests, and configuration.
-3. Add your immediate 3–5 priorities to `TODO-NOW.md`.
-4. Point your AI agent to `AGENT.md` to begin the first session.
+1. Copy repo files into your target directory.
+2. Fill in `AGENT.md`: description, language, entrypoint, 4 canonical commands (`CHECK`, `TEST`, `BUILD`, `RUN`), key paths.
+3. Add 3–5 immediate priorities to `TODO-NOW.md`.
+4. Point your agent to `AGENT.md` to start the first session.
