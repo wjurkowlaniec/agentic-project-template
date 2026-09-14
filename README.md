@@ -6,6 +6,23 @@ A battle-tested, lightweight, stack-agnostic system for shipping software with A
 
 ---
 
+## Quick Setup
+
+Paste this to your AI agent — works for new and existing projects:
+
+```
+Read https://raw.githubusercontent.com/wjurkowlaniec/agentic-project-template/main/BOOTSTRAP.md
+and set up the agentic workflow for this project.
+
+Target: /path/to/my-project
+Name: <Project Name>
+Purpose: <1-2 sentences>
+```
+
+That's it. The agent reads the bootstrap instructions from the remote, detects whether the target is a new or existing project, and configures all living docs automatically.
+
+---
+
 ## The Problem
 
 AI coding assistants are powerful but unreliable at scale. If you've used them on non-trivial projects, you know the failure modes:
@@ -59,21 +76,19 @@ The common thread: agents that stay focused, document their work, and hand off c
 ├── CHANGELOG.md                   # Public release notes (Keep a Changelog format)
 ├── BOOTSTRAP.md                   # How to set up this template on a new or existing project
 ├── AGENT_SPECIALIZED_TEMPLATE.md  # Template for domain-specific sub-agents (audits, migrations)
-├── docs/
-│   ├── index.md                   # Documentation index
-│   ├── architecture.md            # System topology, data flow, trust boundaries
-│   ├── modules.md                 # Subsystems, responsibilities, module boundaries
-│   ├── development.md             # Local setup, iteration loop, testing conventions
-│   ├── operations.md              # Build, release, rollback procedures
-│   ├── BACKLOG.md                 # Strategic roadmap (P0–P3)
-│   ├── PROMPTS/
-│   │   ├── README.md              # Guide for delegating tasks to autonomous subagents
-│   │   └── TEMPLATE__task-prompt.md
-│   └── templates/
-│       ├── FEATURE-SPEC-TEMPLATE.md
-│       └── LESSONS-IDEAS-TEMPLATE.md
-└── scripts/
-    └── init-project.sh            # Scaffold a new project from this template
+└── docs/
+    ├── INDEX.md                   # Documentation index
+    ├── ARCHITECTURE.md            # System topology, data flow, trust boundaries
+    ├── MODULES.md                 # Subsystems, responsibilities, module boundaries
+    ├── DEVELOPMENT.md             # Local setup, iteration loop, testing conventions
+    ├── OPERATIONS.md              # Build, release, rollback procedures
+    ├── BACKLOG.md                 # Strategic roadmap (P0–P3)
+    ├── PROMPTS/
+    │   ├── README.md              # Guide for delegating tasks to autonomous subagents
+    │   └── TEMPLATE__task-prompt.md
+    └── TEMPLATES/
+        ├── FEATURE-SPEC-TEMPLATE.md
+        └── LESSONS-IDEAS-TEMPLATE.md
 ```
 
 ---
@@ -159,17 +174,7 @@ The agent will detect whether the target is a new or existing project and apply 
 
 ---
 
-### Option 2 — Init Script (New Project)
-
-```bash
-./scripts/init-project.sh ~/dev/my-new-tool "My Tool" "High-performance CLI utility for log parsing."
-```
-
-Copies the template, replaces `{{PROJECT_NAME}}`, `{{PROJECT_DESCRIPTION}}`, and `{{DATE}}`, and initializes a clean git repo.
-
----
-
-### Option 3 — Manual Setup
+### Option 2 — Manual Setup
 
 1. Copy repo files into your target directory.
 2. Fill in `AGENT.md`: description, language, entrypoint, 4 canonical commands (`CHECK`, `TEST`, `BUILD`, `RUN`), key paths.
