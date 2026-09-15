@@ -1,6 +1,6 @@
 # Agentic Project Template
 
-A battle-tested, lightweight, stack-agnostic system for shipping software with AI agents — without losing control of your codebase.
+A battle-tested, lightweight, stack-agnostic system for shipping projects with AI agents — without losing control of your codebase.
 
 > **Used across multiple shipped projects.** This workflow emerged from real development sessions, iterated on failures, and refined until agents stopped hallucinating, drifting, and breaking things.
 
